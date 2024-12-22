@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    body {
+      background-color: rgba(0, 0, 0, 0.5);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .cheat-window {
+      background: linear-gradient(135deg, #0f1215, #1a1f25);
+      width: 420px;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .watermark {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 14px;
+      font-weight: bold;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      pointer-events: none;
+      z-index: 1000;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.7; }
+      50% { opacity: 1; }
+      100% { opacity: 0.7; }
+    }
+
+    .title-bar {
+      background: linear-gradient(90deg, #3a7bd5, #00d2ff);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: move;
+    }
+
+    .title-bar h1 {
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-indicator {
+      width: 8px;
+      height: 8px;
+      background: #2ecc71;
+      border-radius: 50%;
+      animation: blink 1.5s infinite;
+    }
+
+    @keyframes blink {
+      0% { opacity: 1; }
+      50% { opacity: 0.4; }
+      100% { opacity: 1; }
+    }
+
+    .controls span {
+      color: white;
+      margin-left: 15px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.3s;
+    }
+
+    .controls span:hover {
+      transform: scale(1.1);
+    }
+
+    .main-content {
+      padding: 20px;
+      color: white;
+    }
+
+    .feature-group {
+      margin-bottom: 25px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 15px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .feature-group h2 {
+      font-size: 14px;
+      color: #00d2ff;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .feature-group h2::before {
+      content: '';
+      display: block;
+      width: 4px;
+      height: 14px;
+      background: #00d2ff;
+      border-radius: 2px;
+    }
+
+    .toggle-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 10px 18px;
+      color: white;
+      border-radius: 8px;
+      margin: 5px;
+      cursor: pointer;
+      transition: 0.3s;
+      font-size: 13px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .toggle-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transition: 0.5s;
+    }
+
+    .toggle-btn:hover::before {
+      left: 100%;
+    }
+
+    .toggle-btn.active {
+      background: linear-gradient(90deg, #3a7bd5, #00d2ff);
+      border: none;
+      box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
+    }
+
+    .slider-container {
+      padding: 10px 0;
+    }
+
+    .slider {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      position: relative;
+    }
+
+    .slider-handle {
+      width: 18px;
+      height: 18px;
+      background: #00d2ff;
+      border-radius: 50%;
+      position: absolute;
+      top: -7px;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+      transition: transform 0.2s;
+    }
+
+    .slider-handle:hover {
+      transform: scale(1.1);
+    }
+
+    .slider-value {
+      position: absolute;
+      top: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      display: none;
+    }
+
+    .slider-handle:hover .slider-value {
+      display: block;
+    }
+
+    .premium-banner {
+      background: linear-gradient(45deg, #FFD700, #FFA500);
+      color: #1a1a1a;
+      padding: 12px;
+      text-align: center;
+      font-weight: bold;
+      display: none;
+      animation: shimmer 2s infinite;
+      position: relative;
+      overflow: hidden;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(46, 204, 113, 0.9);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      display: none;
+      animation: slideIn 0.3s ease-out;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .stat-item {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 12px;
+    }
+
+    .stat-value {
+      font-size: 16px;
+      font-weight: bold;
+      color: #00d2ff;
+      margin-top: 5px;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .hotkey {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+  <div class="watermark">Jarss DEV | v2.5</div>
+  
+  <div class="cheat-window">
+    <div class="title-bar">
+      <h1>
+        <div class="status-indicator"></div>
+        RBX Pro Tools v2.5 | Jarsss
+      </h1>
+      <div class="controls">
+        <span id="minimizeBtn">−</span>
+        <span id="closeBtn">×</span>
+      </div>
+    </div>
+    
+    <div class="premium-banner">
+      ⭐ PREMIUM MODE ACTIVATED ⭐
+    </div>
+
+    <div class="main-content">
+      <div class="feature-group">
+        <h2>Combat</h2>
+        <button class="toggle-btn">Aimbot<span class="hotkey">F1</span></button>
+        <button class="toggle-btn">ESP<span class="hotkey">F2</span></button>
+        <button class="toggle-btn">Auto Farm<span class="hotkey">F3</span></button>
+        <button class="toggle-btn">Wallhack<span class="hotkey">F4</span></button>
+      </div>
+
+      <div class="feature-group">
+        <h2>Movement</h2>
+        <button class="toggle-btn">Speed Hack<span class="hotkey">F5</span></button>
+        <button class="toggle-btn">Fly<span class="hotkey">F6</span></button>
+        <button class="toggle-btn">Noclip<span class="hotkey">F7</span></button>
+        <button class="toggle-btn">Teleport<span class="hotkey">F8</span></button>
+      </div>
+
+      <div class="feature-group">
+        <h2>Settings</h2>
+        <div class="slider-container">
+          <p style="margin-bottom: 8px; font-size: 13px;">Speed Multiplier</p>
+          <div class="slider">
+            <div class="slider-handle">
+              <div class="slider-value">50%</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="stats">
+          <div class="stat-item">
+            <div>FPS</div>
+            <div class="stat-value" id="fpsStat">60</div>
+          </div>
+          <div class="stat-item">
+            <div>Ping</div>
+            <div class="stat-value" id="pingStat">25ms</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="feature-group">
+        <h2>Premium Features</h2>
+        <button id="premiumBtn" class="toggle-btn">Activate Premium<span class="hotkey">F12</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="notification">
+    Feature Activated!
+  </div>
+
+  <script>
+    // Make window draggable
+    const titleBar = document.querySelector('.title-bar');
+    const cheatWindow = document.querySelector('.cheat-window');
+    let isDragging = false;
+    let currentX;
+    let currentY;
+    let initialX;
+    let initialY;
+    let xOffset = 0;
+    let yOffset = 0;
+
+    titleBar.addEventListener('mousedown', dragStart);
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', dragEnd);
+
+    function dragStart(e) {
+      initialX = e.clientX - xOffset;
+      initialY = e.clientY - yOffset;
+
+      if (e.target === titleBar || e.target.parentElement === titleBar) {
+        isDragging = true;
+      }
+    }
+
+    function drag(e) {
+      if (isDragging) {
+        e.preventDefault();
+        currentX = e.clientX - initialX;
+        currentY = e.clientY - initialY;
+        xOffset = currentX;
+        yOffset = currentY;
+        
+        cheatWindow.style.transform = `translate(${currentX}px, ${currentY}px)`;
+      }
+    }
+
+    function dragEnd() {
+      isDragging = false;
+    }
+
+    // Toggle buttons
+    const toggleBtns = document.querySelectorAll('.toggle-btn');
+    toggleBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        btn.classList.toggle('active');
+        showNotification(btn.textContent.split('\n')[0] + ' ' + 
+          (btn.classList.contains('active') ? 'Activated' : 'Deactivated') + '!');
+      });
+    });
+
+    // Premium activation
+    const premiumBtn = document.getElementById('premiumBtn');
+    const premiumBanner = document.querySelector('.premium-banner');
+    premiumBtn.addEventListener('click', () => {
+      premiumBanner.style.display = 'block';
+      showNotification('⭐ Premium Mode Activated! ⭐');
+      premiumBtn.textContent = 'Premium Active';
+      premiumBtn.style.background = 'linear-gradient(45deg, #FFD700, #FFA500)';
+      premiumBtn.style.color = '#1a1a1a';
+      premiumBtn.style.fontWeight = 'bold';
+    });
+
+    // Notification system
+    function showNotification(message) {
+      const notification = document.querySelector('.notification');
+      notification.textContent = message;
+      notification.style.display = 'block';
+      
+      setTimeout(() => {
+        notification.style.display = 'none';
+      }, 2000);
+    }
+
+    // Slider functionality
+    const slider = document.querySelector('.slider');
+    const handle = document.querySelector('.slider-handle');
+    const sliderValue = document.querySelector('.slider-value');
+    let isDraggingSlider = false;
+
+    handle.addEventListener('mousedown', () => {
+      isDraggingSlider = true;
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (isDraggingSlider) {
+        const sliderRect = slider.getBoundingClientRect();
+        let position = (e.clientX - sliderRect.left) / sliderRect.width;
+        position = Math.max(0, Math.min(position, 1));
+        handle.style.left = `${position * 100}%`;
+        sliderValue.textContent = `${Math.round(position * 100)}%`;
+      }
+    });
+
+    document.addEventListener('mouseup', () => {
+      isDraggingSlider = false;
+    });
+
+    // Window controls
+    document.getElementById('closeBtn').addEventListener('click', () => {
+      cheatWindow.style.display = 'none';
+    });
+
+    let isMinimized = false;
+    document.getElementById('minimizeBtn').addEventListener('click', () => {
+      if (isMinimized) {
+        cheatWindow.style.height = 'auto';
+        document.querySelector('.main-content').style.display = 'block';
+      } else {
+        cheatWindow.style.height = '52px';
+        document.querySelector('.main-content').style.display = 'none
